@@ -23,6 +23,7 @@ export interface RunOptions {
   model?: string
   /** Optional reasoning-effort variant. Undefined → model default. */
   effort?: import("../agent/types.ts").EffortLevel
+  maxBudgetUsd?: number
   /** Startup permission mode (SDK spelling). Undefined → "default". */
   permissionMode?: import("../agent/modes.ts").SdkPermissionMode
   pathToClaudeCodeExecutable?: string
@@ -46,6 +47,7 @@ export async function runTui(opts: RunOptions): Promise<void> {
                     cwd: opts.cwd,
                     ...(opts.model ? { model: opts.model } : {}),
                     ...(opts.effort ? { effort: opts.effort } : {}),
+                    ...(opts.maxBudgetUsd !== undefined ? { maxBudgetUsd: opts.maxBudgetUsd } : {}),
                     ...(opts.permissionMode ? { permissionMode: opts.permissionMode } : {}),
                     ...(opts.pathToClaudeCodeExecutable
                       ? { pathToClaudeCodeExecutable: opts.pathToClaudeCodeExecutable }
