@@ -93,6 +93,10 @@ export function StatusLine() {
       <text fg={statusColor()}>{statusLabel()}</text>
       <text fg={theme.textDim}>{"  "}</text>
       <text fg={contextColor()}>{contextLabel() ?? ""}</text>
+      <Show when={agent.costUsd() > 0}>
+        <text fg={theme.textDim}>{"  ·  "}</text>
+        <text fg={theme.textMuted}>{`${agent.costUsd().toFixed(2)}${agent.runBudgetUsd() !== null ? `/${agent.runBudgetUsd()!.toFixed(2)}` : ""}`}</text>
+      </Show>
       <box flexGrow={1} />
       <text fg={theme.textMuted}>
         {modelStr() + "  |  " + expandLabel() + "  |  " + tabHint() + "  |  ctrl+k menu"}
