@@ -198,7 +198,6 @@ export function AgentProvider(props: AgentProviderProps) {
       // DialogQuestion component (mounted by the chat route when
       // pendingQuestion() is non-null) calls request.resolve() to
       // either answer the questions or cancel.
-      onEvent: undefined as never,
       onQuestionRequest: (req) =>
         new Promise<Record<string, string> | null>((resolve) => {
           setPendingQuestion({
@@ -250,6 +249,9 @@ export function AgentProvider(props: AgentProviderProps) {
             break
           case "context":
             setContextUsageSignal(evt.usage)
+            break
+          case "cost":
+            setCostUsd(evt.usd)
             break
           case "todos":
             setTodosSignal(evt.todos)
