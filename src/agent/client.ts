@@ -55,7 +55,6 @@ export interface AgentClientConfig {
    * runtime via setEffort().
    */
   effort?: EffortLevel
-  maxBudgetUsd?: number
   /**
    * Resume a prior session by UUID. The SDK will replay the session's
    * prior turns through the same NDJSON event stream as `assistant` /
