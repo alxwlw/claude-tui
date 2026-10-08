@@ -290,6 +290,8 @@ export function AgentProvider(props: AgentProviderProps) {
     },
     sessionId,
     contextUsage,
+    costUsd,
+    runBudgetUsd: () => props.config.maxBudgetUsd ?? null,
     sessionTitle,
     refreshSessionTitle: async () => {
       const id = sessionId()
