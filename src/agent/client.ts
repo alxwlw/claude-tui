@@ -55,6 +55,7 @@ export interface AgentClientConfig {
    * runtime via setEffort().
    */
   effort?: EffortLevel
+  maxBudgetUsd?: number
   /**
    * Resume a prior session by UUID. The SDK will replay the session's
    * prior turns through the same NDJSON event stream as `assistant` /
@@ -314,6 +315,7 @@ export function createAgentClient(config: AgentClientConfig): AgentClient {
     ...(config.resume ? { resume: config.resume } : {}),
     ...(config.fork ? { forkSession: true } : {}),
     ...(config.resumeAt ? { resumeSessionAt: config.resumeAt } : {}),
+    ...(config.maxBudgetUsd !== undefined ? { maxBudgetUsd: config.maxBudgetUsd } : {}),
     // Snapshot files before each modification so /rewind can restore
     // the working tree to any prior user turn via Query.rewindFiles().
     enableFileCheckpointing: true,
