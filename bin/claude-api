@@ -1,0 +1,18 @@
+#!/usr/bin/env -S bun --conditions=browser
+
+if (!process.env.ANTHROPIC_API_KEY) {
+  process.stderr.write(
+    "claude-api: ANTHROPIC_API_KEY is not set. Export your Anthropic API key first.\n",
+  )
+  process.exit(1)
+}
+
+// Mark this invocation as API-billing mode. The shared TUI/runtime remains
+// identical to claude-tui; only authentication/billing behavior changes.
+process.env.CLAUDE_TUI_API_MODE = "1"
+
+import { join, dirname } from "node:path"
+import { fileURLToPath } from "node:url"
+
+const here = dirname(fileURLToPath(import.meta.url))
+await import(join(here, "..", "src", "index.tsx"))
