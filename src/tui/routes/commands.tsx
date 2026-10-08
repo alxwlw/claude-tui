@@ -216,6 +216,43 @@ function buildSpecs(deps: BuiltinDeps): CommandSpec[] {
       },
     },
     {
+      value: "session.cost",
+      title: "Show API cost",
+      description: "Show the accumulated API cost for this TUI run",
+      category: "Usage",
+      slash: { name: "cost" },
+      onSelect: () => {
+        dialog.clear()
+        const cost = agent.costUsd()
+        const budget = agent.runBudgetUsd()
+        agent.pushNotice(
+          `API cost: ${cost.toFixed(4)}${budget !== null ? ` / ${budget.toFixed(2)} budget` : ""}`,
+        )
+      },
+    },
+    {
+      value: "session.budget",
+      title: "Set API budget",
+      description: "Show or set the maximum USD budget for the next launch",
+      category: "Usage",
+      slash: { name: "budget" },
+      onSelect: (args) => {
+        dialog.clear()
+        const value = (args ?? "").trim()
+        if (!value) {
+          const budget = agent.runBudgetUsd()
+          agent.pushNotice(`/budget: ${budget === null ? "not set" : `${budget.toFixed(2)}`}`)
+          return
+        }
+        const n = Number.parseFloat(value)
+        if (!Number.isFinite(n) || n <= 0) {
+          agent.pushNotice("/budget: usage /budget <positive USD amount> (takes effect on next launch)")
+          return
+        }
+        agent.pushNotice(`/budget: ${n.toFixed(2)} — restart with claude-api --max-budget ${n}`)
+      },
+    },
+    {
       value: "session.context",
       title: "Show context usage",
       description: "Claude Code's /context breakdown plus the live token count",

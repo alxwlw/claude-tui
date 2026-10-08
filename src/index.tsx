@@ -29,6 +29,7 @@ interface Argv {
   model?: string
   bin?: string
   scrollSpeed?: number
+  maxBudgetUsd?: number
   permissionMode?: string
   debug: boolean
   debugLog?: string
@@ -88,6 +89,10 @@ function parseArgs(argv: readonly string[]): Argv {
       out.permissionMode = a.slice("--permission-mode=".length)
     } else if (a === "--dangerously-skip-permissions" || a === "--yolo") {
       out.permissionMode = "bypass"
+    } else if (a === "--max-budget" && argv[i + 1]) {
+      out.maxBudgetUsd = Number.parseFloat(argv[++i]!)
+    } else if (a.startsWith("--max-budget=")) {
+      out.maxBudgetUsd = Number.parseFloat(a.slice("--max-budget=".length))
     } else if (a === "--scroll-speed" && argv[i + 1]) {
       out.scrollSpeed = Number.parseInt(argv[++i]!, 10)
     } else if (a.startsWith("--model=")) {
@@ -121,6 +126,7 @@ function printHelp(): void {
       "  --permission-mode <m> permission level: default | accept | bypass (persisted",
       "                        /permissions choice is used when the flag is omitted)",
       "  --dangerously-skip-permissions   shorthand for --permission-mode bypass",
+      "  --max-budget <usd>    Maximum USD budget for one agent run (API mode).",
       "  --scroll-speed <n>    Mouse-wheel lines per tick (1-20, default 3). Persists.",
       `  --debug               Log every event to ${DEFAULT_DEBUG_LOG}`,
       "                        and surface SDK subprocess stderr in the TUI",
@@ -159,6 +165,9 @@ function printHelp(): void {
       "  /fork                 branch the conversation into a new session",
       "  /rewind               restore files + conversation to a past turn",
       "  /context              show context usage (live count + CLI breakdown)",
+      "  /cost                 show API cost for the current run",
+      "  /budget <usd>         show/set the per-run API budget",
+
       "  /compact              summarize the conversation to reclaim context",
       "  /scroll <n>           set mouse-wheel scroll speed (1-20 lines per tick)",
       "  /markdown [on|off]    toggle markdown rendering of assistant messages (default on)",
@@ -233,6 +242,7 @@ async function main() {
         ...(permissionMode ? { permissionMode } : {}),
         ...(args.bin ? { pathToClaudeCodeExecutable: args.bin } : {}),
         ...(args.resume ? { resume: args.resume } : {}),
+        ...(args.maxBudgetUsd !== undefined && Number.isFinite(args.maxBudgetUsd) ? { maxBudgetUsd: args.maxBudgetUsd } : {}),
       },
     )
     process.exit(code)
@@ -244,6 +254,7 @@ async function main() {
     ...(permissionMode ? { permissionMode } : {}),
     ...(args.bin ? { pathToClaudeCodeExecutable: args.bin } : {}),
     ...(args.resume ? { resume: args.resume } : {}),
+    ...(args.maxBudgetUsd !== undefined && Number.isFinite(args.maxBudgetUsd) ? { maxBudgetUsd: args.maxBudgetUsd } : {}),
     ...(args.scrollSpeed !== undefined && Number.isFinite(args.scrollSpeed)
       ? { scrollSpeed: args.scrollSpeed }
       : {}),

@@ -55,6 +55,7 @@ export interface AgentClientConfig {
    * runtime via setEffort().
    */
   effort?: EffortLevel
+  maxBudgetUsd?: number
   /**
    * Resume a prior session by UUID. The SDK will replay the session's
    * prior turns through the same NDJSON event stream as `assistant` /
@@ -314,6 +315,7 @@ export function createAgentClient(config: AgentClientConfig): AgentClient {
     ...(config.resume ? { resume: config.resume } : {}),
     ...(config.fork ? { forkSession: true } : {}),
     ...(config.resumeAt ? { resumeSessionAt: config.resumeAt } : {}),
+    ...(config.maxBudgetUsd !== undefined ? { maxBudgetUsd: config.maxBudgetUsd } : {}),
     // Snapshot files before each modification so /rewind can restore
     // the working tree to any prior user turn via Query.rewindFiles().
     enableFileCheckpointing: true,
@@ -744,6 +746,10 @@ export function createAgentClient(config: AgentClientConfig): AgentClient {
       }
 
       case "result": {
+        const result = msg as { total_cost_usd?: number; duration_ms?: number; num_turns?: number }
+        if (typeof result.total_cost_usd === "number") {
+          emit({ type: "cost", usd: result.total_cost_usd, ...(typeof result.duration_ms === "number" ? { durationMs: result.duration_ms } : {}), ...(typeof result.num_turns === "number" ? { numTurns: result.num_turns } : {}) })
+        }
         // End-of-request marker. Mark every text/thinking bubble in
         // the current message as complete (in case content_block_stop
         // didn't reach us — e.g. dropped events) and clear the block

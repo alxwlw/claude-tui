@@ -63,6 +63,9 @@ export interface AgentContextValue {
   cwd: () => string
   /** Latest context-usage snapshot from the SDK; null until first refresh. */
   contextUsage: () => ContextUsage | null
+  /** Accumulated API cost for the current TUI run. */
+  costUsd: () => number
+  runBudgetUsd: () => number | null
   /** Session title from the CLI (auto-generated or user-set), or null until known. */
   sessionTitle: () => string | null
   /**
@@ -142,6 +145,7 @@ export function AgentProvider(props: AgentProviderProps) {
   )
   const [sessionId, setSessionIdSignal] = createSignal<string | null>(null)
   const [contextUsage, setContextUsageSignal] = createSignal<ContextUsage | null>(null)
+  const [costUsd, setCostUsd] = createSignal(0)
   const [sessionTitle, setSessionTitleSignal] = createSignal<string | null>(null)
   const [todos, setTodosSignal] = createSignal<TodoItem[]>([])
   const [mcpServers, setMcpServersSignal] = createSignal<McpServerInfo[]>([])
@@ -167,6 +171,7 @@ export function AgentProvider(props: AgentProviderProps) {
     setPendingQuestion(null)
     setSessionIdSignal(null)
     setContextUsageSignal(null)
+    setCostUsd(0)
     // Title/todos belong to the outgoing session. A resume replays its
     // TodoWrite calls (repopulating todos) and re-delivers the title via
     // the SessionStart hook; a fresh session correctly starts empty.
@@ -245,6 +250,9 @@ export function AgentProvider(props: AgentProviderProps) {
           case "context":
             setContextUsageSignal(evt.usage)
             break
+          case "cost":
+            setCostUsd(evt.usd)
+            break
           case "todos":
             setTodosSignal(evt.todos)
             break
@@ -282,6 +290,8 @@ export function AgentProvider(props: AgentProviderProps) {
     },
     sessionId,
     contextUsage,
+    costUsd,
+    runBudgetUsd: () => props.config.maxBudgetUsd ?? null,
     sessionTitle,
     refreshSessionTitle: async () => {
       const id = sessionId()
