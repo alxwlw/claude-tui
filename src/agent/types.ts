@@ -178,6 +178,7 @@ export type AgentEvent =
   | { type: "permissionLevel"; level: import("./modes.ts").PermissionLevel }
   | { type: "session"; sessionId: string }
   | { type: "context"; usage: ContextUsage }
+  | { type: "cost"; usd: number; durationMs?: number; numTurns?: number }
   /** Latest full TodoWrite checklist (REPLACE semantics — swap, don't merge). */
   | { type: "todos"; todos: TodoItem[] }
   /** Session title, captured from SessionStart/UserPromptSubmit hook inputs. */
